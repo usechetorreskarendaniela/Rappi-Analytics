@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Dashboard Burnout Repartidores Rappi 2025</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',Tahoma,sans-serif;background:#dde4ec;color:#1a2633;font-size:12px;overflow:hidden;height:100vh;}
+.app{display:flex;height:100vh;flex-direction:column;}
+
+.page{display:none;flex:1;flex-direction:column;overflow:hidden;}
+.page.active{display:flex;}
+
+/* TOPBAR */
+.topbar{background:#c8d4e0;border-bottom:2px solid #a8b8c8;padding:9px 18px 7px;flex-shrink:0;}
+.topbar .sub{font-size:10px;color:#5a6e80;margin-bottom:1px;}
+.topbar h1{font-size:17px;font-weight:700;color:#0d1e2d;}
+
+/* FILTER BAR - solo chips de texto, sin botones */
+.fbar{background:#d8e0e8;border-bottom:1px solid #b4c0cc;padding:5px 18px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;flex-shrink:0;}
+.fl{font-size:10px;color:#5a6e80;margin-left:6px;}
+.fl:first-child{margin-left:0;}
+.fchip{background:#bfccd8;border:1px solid #9aaab8;padding:2px 10px;font-size:10px;cursor:pointer;color:#1a2633;user-select:none;display:inline-block;}
+.fchip:hover{background:#aabbc8;}
+.fchip.on{background:#4a7a9b;color:#fff;border-color:#2a5a7b;}
+
+.body{display:flex;flex:1;overflow:hidden;}
+
+/* SIDEBAR */
+.sb{width:158px;min-width:158px;background:#c8d4e0;border-right:1px solid #a8b8c8;display:flex;flex-direction:column;}
+.sb-logo{padding:11px 12px 9px;border-bottom:1px solid #a8b8c8;}
+.sb-logo .dots{display:grid;grid-template-columns:repeat(4,7px);gap:3px;}
+.sb-logo .dots span{width:7px;height:7px;background:#7a8e9e;border-radius:50%;display:block;}
+.sb-logo .dots span.dk{background:#1a3a5a;}
+
+/* NAV - iconos grandes y visibles */
+.nav{border-bottom:1px solid #a8b8c8;}
+.nv{display:flex;align-items:center;gap:9px;padding:9px 12px;cursor:pointer;font-size:11px;color:#2a3e50;user-select:none;}
+.nv:hover{background:#b8c8d8;}
+.nv.act{background:#a8bccf;font-weight:700;color:#0d1e2d;}
+.ni{width:20px;height:20px;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+/* icono dashboard: 4 cuadros visibles */
+.ico-dash{width:16px;height:16px;display:grid;grid-template-columns:1fr 1fr;gap:2px;}
+.ico-dash span{display:block;background:currentColor;border-radius:0;}
+/* icono base datos: lineas */
+.ico-db{width:16px;height:16px;display:flex;flex-direction:column;justify-content:space-between;padding:2px 0;}
+.ico-db span{display:block;height:2px;background:currentColor;}
+.ico-db span:nth-child(1){width:100%;}
+.ico-db span:nth-child(2){width:80%;}
+.ico-db span:nth-child(3){width:60%;}
+/* icono analisis: grafica de barras */
+.ico-an{width:16px;height:16px;display:flex;align-items:flex-end;gap:2px;}
+.ico-an span{display:block;background:currentColor;flex:1;}
+
+.sb-filters{padding:9px 10px;flex:1;overflow-y:auto;}
+.sfl{font-size:9.5px;color:#4a5e6e;margin-bottom:3px;margin-top:7px;display:flex;justify-content:space-between;align-items:center;font-weight:600;}
+.sfl:first-child{margin-top:0;}
+.sfg{display:grid;grid-template-columns:1fr 1fr;gap:2px;}
+.sfb{background:#b4c4d0;border:1px solid #98aab8;padding:3px 3px;font-size:9.5px;text-align:center;cursor:pointer;color:#1a2633;border-radius:0;user-select:none;}
+.sfb:hover{background:#a4b4c2;}
+.sfb.on{background:#4a7a9b;color:#fff;border-color:#2a5a7b;}
+
+.sb-rider{padding:8px 10px 12px;display:flex;justify-content:center;border-top:1px solid #a8b8c8;margin-top:auto;}
+
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+
+/* KPI ROW */
+.krow{background:#6a8aa4;padding:7px 14px;display:flex;gap:7px;flex-shrink:0;}
+.kpi{background:#7a9ab4;border:1px solid #4a7a94;padding:7px 11px;flex:1;display:flex;align-items:center;gap:8px;}
+.kico{width:30px;height:30px;background:rgba(255,255,255,.17);border:1px solid rgba(255,255,255,.28);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.kico svg{width:15px;height:15px;stroke:#fff;fill:none;stroke-width:1.9;}
+.ktxt{color:#fff;}
+.klbl{font-size:8.5px;opacity:.82;}
+.kval{font-size:16px;font-weight:700;line-height:1.1;}
+
+/* CONTENT */
+.content{flex:1;display:grid;grid-template-columns:1fr 1fr .88fr;gap:9px;padding:9px 13px;overflow:hidden;}
+.col{display:flex;flex-direction:column;gap:9px;min-height:0;}
+
+.card{background:#fff;border:1px solid #b8c4d0;padding:9px 11px;display:flex;flex-direction:column;min-height:0;border-radius:0;}
+.card.blue{background:#7a9ab4;border-color:#4a7a94;}
+
+/* CARD HEADER con flecha SVG visible */
+.ch{display:flex;align-items:center;gap:5px;margin-bottom:6px;flex-shrink:0;}
+.ch-arr svg{width:13px;height:13px;stroke:#3a5a7a;fill:none;stroke-width:2.2;display:block;}
+.card.blue .ch-arr svg{stroke:#cce0f0;}
+.ch-tit{font-size:11px;font-weight:700;color:#0d1e2d;}
+.card.blue .ch-tit{color:#fff;}
+.ch-sub{font-size:9px;color:#7a8e9e;margin-left:3px;}
+.card.blue .ch-sub{color:rgba(255,255,255,.7);}
+
+/* BRACKET boceto visible */
+.brk{display:flex;flex-direction:column;margin-right:3px;flex-shrink:0;}
+.brk-line{font-family:'Courier New',monospace;font-size:13px;font-weight:700;color:#3a5a7a;line-height:1.1;display:block;}
+
+/* BAR CHART */
+.bchart{flex:1;display:flex;align-items:flex-end;gap:2px;min-height:0;padding-bottom:16px;position:relative;overflow:hidden;}
+.bcol{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;position:relative;}
+.bv{font-size:7px;color:#3a4e5e;margin-bottom:2px;}
+.bb{width:100%;background:#7a9ab4;min-height:3px;}
+.bb.hi{background:#1a3a5a;}
+.bl{position:absolute;bottom:-14px;font-size:7px;color:#5a6e80;white-space:nowrap;}
+
+/* HBARS */
+.hbars{flex:1;display:flex;flex-direction:column;gap:5px;justify-content:center;min-height:0;overflow:hidden;}
+.hr{display:flex;align-items:center;gap:6px;}
+.hl{width:82px;font-size:9px;text-align:right;color:#1a2633;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.card.blue .hl{color:#fff;}
+.ht{flex:1;height:8px;background:#dde4ec;}
+.card.blue .ht{background:rgba(255,255,255,.22);}
+.hf{height:100%;background:#7a9ab4;}
+.hf.hi{background:#1a3a5a;}
+.card.blue .hf{background:rgba(255,255,255,.6);}
+.card.blue .hf.hi{background:#fff;}
+/* punto solo en turno (card blue) */
+
+.hp{width:28px;font-size:8.5px;text-align:right;color:#3a4e5e;flex-shrink:0;}
+.card.blue .hp{color:#fff;}
+
+/* DONUT GRANDE con leyendas en esquinas */
+.donut-wrap{flex:1;position:relative;display:flex;align-items:center;justify-content:center;min-height:0;}
+.donut-svg{width:130px;height:130px;flex-shrink:0;}
+.donut-svg svg{width:100%;height:100%;transform:rotate(-90deg);}
+.dc{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;}
+.dcv{font-size:15px;font-weight:700;color:#0d1e2d;}
+.dcl{font-size:7.5px;color:#5a6e80;line-height:1.3;}
+
+/* leyendas en esquinas absolutas */
+.dleg-tl,.dleg-tr,.dleg-bl{position:absolute;font-size:9px;line-height:1.3;}
+.dleg-tl{top:4px;left:4px;text-align:left;}
+.dleg-tr{top:4px;right:4px;text-align:right;}
+.dleg-bl{bottom:4px;left:50%;transform:translateX(-50%);text-align:center;}
+.dleg-name{color:#3a4e5e;font-size:8.5px;}
+.dleg-val{font-weight:700;font-size:10px;}
+
+/* MAP */
+.map-card{flex:1.4;}
+.mi{flex:1;position:relative;background:#c0d0e0;border:1px solid #98aab8;overflow:hidden;min-height:0;display:flex;}
+.mi svg{width:100%;height:100%;display:block;}
+.mtp{position:absolute;background:rgba(13,30,45,.92);color:#fff;padding:3px 7px;font-size:8.5px;pointer-events:none;display:none;z-index:10;white-space:nowrap;}
+.mcr{position:absolute;bottom:3px;right:4px;font-size:7px;color:#7a8e9e;}
+.mleg{display:flex;gap:10px;margin-top:5px;font-size:8px;color:#2a3e4e;}
+.mlr{display:flex;align-items:center;gap:3px;}
+.mls{width:9px;height:9px;flex-shrink:0;}
+
+/* TABS */
+.tabbar{background:#b8c8d8;border-top:1px solid #98a8b8;display:flex;align-items:flex-end;padding:0 8px;height:25px;flex-shrink:0;}
+.tab{padding:3px 14px;font-size:10px;background:#c8d4e0;border:1px solid #a0b0c0;border-bottom:none;cursor:pointer;color:#3a4e5e;margin-right:2px;user-select:none;}
+.tab:hover{background:#b8c8d8;}
+.tab.on{background:#fff;color:#0d1e2d;font-weight:600;}
+.tab.dk{background:#1a2e40;color:#fff;border-color:#0a1e30;}
+.tplus{margin-left:auto;margin-bottom:2px;width:19px;height:19px;background:#cc2211;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;}
+
+/* PAGES INTERNAS */
+.page-inner{flex:1;display:flex;flex-direction:column;background:#fff;overflow:auto;}
+.pg-title{font-size:13px;font-weight:700;color:#1a2633;padding:8px 0 4px 0;border-bottom:2px solid #1a2633;margin-bottom:0;}
+.pg-sub{font-size:10px;color:#5a6e80;padding:4px 0 8px 0;}
+
+/* EXCEL TABLE */
+.xl-wrap{width:100%;overflow:auto;flex:1;}
+.xl-table{width:100%;border-collapse:collapse;font-size:11px;font-family:'Segoe UI',Tahoma,sans-serif;}
+.xl-table thead tr{background:#1a2633;color:#fff;}
+.xl-table thead th{padding:6px 10px;text-align:left;font-weight:600;font-size:10.5px;border:1px solid #333;white-space:nowrap;position:sticky;top:0;z-index:2;}
+.xl-table thead th:first-child{background:#2a3643;}
+/* Row numbers col */
+.xl-table td.rn{background:#e8ecf0;color:#5a6e80;font-size:9.5px;text-align:center;border:1px solid #c8d0d8;padding:4px 6px;min-width:28px;}
+.xl-table th.rn{background:#2a3643;border:1px solid #333;}
+.xl-table tbody tr{background:#fff;}
+.xl-table tbody tr:nth-child(even){background:#f2f5f8;}
+.xl-table tbody tr:hover{background:#dde8f5;cursor:pointer;}
+.xl-table tbody tr.selected{background:#c8d8f0 !important;}
+.xl-table td{padding:4px 10px;border:1px solid #d0d8e0;color:#1a2633;font-size:10.5px;white-space:nowrap;}
+/* cell selected highlight */
+.xl-table td:hover{background:#e8f0fa;}
+/* frozen first col */
+.xl-table td:nth-child(2),.xl-table th:nth-child(2){font-weight:600;}
+/* badges excel style */
+.xb{display:inline-block;padding:1px 8px;font-size:9.5px;font-weight:700;border:1px solid;}
+.xb-alto{background:#fce8e8;color:#8b0000;border-color:#e0b0b0;}
+.xb-medio{background:#fff8e0;color:#7a5800;border-color:#e0c860;}
+.xb-bajo{background:#e8f5e8;color:#1a5c1a;border-color:#a0c8a0;}
+/* formula bar style header */
+.xl-toolbar{background:#e8ecf0;border-bottom:1px solid #c0c8d0;padding:4px 10px;display:flex;align-items:center;gap:8px;font-size:10px;color:#3a4e5e;flex-shrink:0;}
+.xl-cell-ref{background:#fff;border:1px solid #a0aab4;padding:2px 8px;font-size:10px;color:#1a2633;min-width:48px;text-align:center;}
+.xl-formula{background:#fff;border:1px solid #a0aab4;padding:2px 10px;font-size:10px;color:#1a2633;flex:1;}
+.xl-fx{color:#1a5ca0;font-weight:700;font-size:11px;}
+
+/* ANALYSIS TABLE */
+.an-xl-wrap{width:100%;overflow:auto;flex:1;}
+.an-xl{width:100%;border-collapse:collapse;font-size:11px;}
+.an-xl thead th{background:#1a2633;color:#fff;padding:6px 12px;text-align:left;font-weight:600;font-size:10.5px;border:1px solid #333;position:sticky;top:0;}
+.an-xl tbody tr{background:#fff;}
+.an-xl tbody tr:nth-child(even){background:#f2f5f8;}
+.an-xl tbody tr:hover{background:#dde8f5;}
+.an-xl td{padding:4px 12px;border:1px solid #d0d8e0;font-size:10.5px;color:#1a2633;}
+.an-xl td.cat{background:#e8ecf0;font-weight:700;color:#1a2633;font-size:10px;}
+.an-xl td.val{font-weight:700;color:#1a2633;}
+.an-xl td.good{color:#1a5c1a;font-weight:700;}
+.an-xl td.warn{color:#7a5800;font-weight:700;}
+.an-xl td.bad{color:#8b0000;font-weight:700;}
+.badge{display:inline-block;padding:1px 7px;font-size:9px;font-weight:600;}
+.b-alto{background:#1a3a5a;color:#fff;}
+.b-medio{background:#7a9ab4;color:#fff;}
+.b-bajo{background:#c0d0dc;color:#1a2633;}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ===== SIDEBAR HELPER (reutilizable en cada pagina via JS) ===== -->
+
+<!-- ===== DASHBOARD ===== -->
+<div class="page active" id="pg-dashboard">
+<div class="topbar">
+  <div class="sub">Seguimiento mensual del riesgo de agotamiento laboral - 2025</div>
+  <h1>Dashboard Burnout Repartidores Rappi</h1>
+</div>
+<div class="fbar">
+  <span class="fl">Cantidad</span>
+  <span class="fchip on" data-chip="horas" onclick="this.classList.toggle('on');updateDashboard()">Horas Trab.</span>
+  <span class="fchip" data-chip="fatiga" onclick="this.classList.toggle('on');updateDashboard()">Fatiga</span>
+  <span class="fl">Burnout</span>
+  <span class="fchip on" data-chip="alto" onclick="this.classList.toggle('on');updateDashboard()">Alto Riesgo</span>
+  <span class="fchip" data-chip="medio" onclick="this.classList.toggle('on');updateDashboard()">Riesgo Medio</span>
+  <span class="fchip" data-chip="bajo" onclick="this.classList.toggle('on');updateDashboard()">Bajo Riesgo</span>
+  <span class="fl">Ciudad</span>
+  <span class="fchip on" data-ciudad="bogota" onclick="this.classList.toggle('on');updateDashboard()">Bogota</span>
+  <span class="fchip" data-ciudad="medellin" onclick="this.classList.toggle('on');updateDashboard()">Medellin</span>
+  <span class="fchip" data-ciudad="cali" onclick="this.classList.toggle('on');updateDashboard()">Cali</span>
+  <span class="fchip" data-ciudad="barranquilla" onclick="this.classList.toggle('on');updateDashboard()">Barranquilla</span>
+</div>
+<div class="body">
+
+<!-- SIDEBAR -->
+<div class="sb">
+  <div class="sb-logo">
+    <div class="dots">
+      <span class="dk"></span><span></span><span class="dk"></span><span></span>
+      <span></span><span class="dk"></span><span></span><span class="dk"></span>
+      <span class="dk"></span><span></span><span></span><span class="dk"></span>
+    </div>
+  </div>
+  <div class="nav">
+    <div class="nv act" onclick="goPage('dashboard')">
+      <!-- 4 cuadros icono dashboard -->
+      <div class="ni">
+        <div class="ico-dash">
+          <span style="height:6px;"></span><span style="height:6px;"></span>
+          <span style="height:6px;"></span><span style="height:6px;"></span>
+        </div>
+      </div>
+      Dashboard
+    </div>
+    <div class="nv" onclick="goPage('datos')">
+      <!-- lineas icono base datos -->
+      <div class="ni">
+        <div class="ico-db"><span></span><span></span><span></span></div>
+      </div>
+      Base de Datos
+    </div>
+    <div class="nv" onclick="goPage('analisis')">
+      <!-- barras crecientes icono analisis -->
+      <div class="ni">
+        <div class="ico-an">
+          <span style="height:5px;"></span>
+          <span style="height:9px;"></span>
+          <span style="height:13px;"></span>
+          <span style="height:7px;"></span>
+          <span style="height:16px;"></span>
+        </div>
+      </div>
+      Analisis
+    </div>
+  </div>
+
+  <div class="sb-filters">
+    <!-- ANO - solo datos relevantes para 2025 -->
+    <div class="sfl">
+      <span style="display:flex;align-items:center;gap:3px;">
+        <svg width="9" height="9" viewBox="0 0 10 10" fill="none" stroke="#4a5e6e" stroke-width="1.5"><rect x="1" y="2" width="8" height="7"/><line x1="3" y1="1" x2="3" y2="3"/><line x1="7" y1="1" x2="7" y2="3"/><line x1="1" y1="5" x2="9" y2="5"/></svg>
+        Ano
+      </span>
+      <svg width="7" height="7" viewBox="0 0 8 8" fill="#4a5e6e"><polygon points="0,2 8,2 4,7"/></svg>
+    </div>
+    <div class="sfg">
+      <div class="sfb" data-q="Q1 2025" onclick="toggleQuarter(this)">Q1 2025</div>
+      <div class="sfb on" data-q="Q2 2025" onclick="toggleQuarter(this)">Q2 2025</div>
+      <div class="sfb on" data-q="Q3 2025" onclick="toggleQuarter(this)">Q3 2025</div>
+      <div class="sfb" data-q="Q4 2025" onclick="toggleQuarter(this)">Q4 2025</div>
+    </div>
+
+    <div class="sfl">
+      <span style="display:flex;align-items:center;gap:3px;">
+        <svg width="9" height="9" viewBox="0 0 10 10" fill="none" stroke="#4a5e6e" stroke-width="1.5"><line x1="1" y1="2" x2="9" y2="2"/><line x1="2.5" y1="5" x2="7.5" y2="5"/><line x1="4" y1="8" x2="6" y2="8"/></svg>
+        Mes
+      </span>
+      <svg width="7" height="7" viewBox="0 0 8 8" fill="#4a5e6e"><polygon points="0,2 8,2 4,7"/></svg>
+    </div>
+    <div class="sfg">
+      <div class="sfb on" data-mes="ene" onclick="this.classList.toggle('on');updateDashboard()">ene</div><div class="sfb" data-mes="feb" onclick="this.classList.toggle('on');updateDashboard()">feb</div>
+      <div class="sfb" data-mes="mar" onclick="this.classList.toggle('on');updateDashboard()">mar</div><div class="sfb" data-mes="abr" onclick="this.classList.toggle('on');updateDashboard()">abr</div>
+      <div class="sfb" data-mes="may" onclick="this.classList.toggle('on');updateDashboard()">may</div><div class="sfb" data-mes="jun" onclick="this.classList.toggle('on');updateDashboard()">jun</div>
+      <div class="sfb" data-mes="jul" onclick="this.classList.toggle('on');updateDashboard()">jul</div><div class="sfb" data-mes="ago" onclick="this.classList.toggle('on');updateDashboard()">ago</div>
+      <div class="sfb" data-mes="sep" onclick="this.classList.toggle('on');updateDashboard()">sep</div><div class="sfb" data-mes="oct" onclick="this.classList.toggle('on');updateDashboard()">oct</div>
+      <div class="sfb" data-mes="nov" onclick="this.classList.toggle('on');updateDashboard()">nov</div><div class="sfb" data-mes="dic" onclick="this.classList.toggle('on');updateDashboard()">dic</div>
+    </div>
+  </div>
+
+  <!-- REPARTIDOR 3D -->
+  <div class="sb-rider">
+    <svg width="118" height="106" viewBox="0 0 110 100" xmlns="http://www.w3.org/2000/svg">
+      <!-- sombra suelo -->
+      <ellipse cx="55" cy="95" rx="36" ry="4" fill="rgba(0,0,0,.12)"/>
+      <!-- rueda trasera -->
+      <circle cx="26" cy="82" r="13" fill="none" stroke="#b02010" stroke-width="3"/>
+      <circle cx="26" cy="82" r="7" fill="#cc2810"/>
+      <circle cx="26" cy="82" r="3" fill="#e04030"/>
+      <!-- rueda delantera -->
+      <circle cx="82" cy="82" r="13" fill="none" stroke="#b02010" stroke-width="3"/>
+      <circle cx="82" cy="82" r="7" fill="#cc2810"/>
+      <circle cx="82" cy="82" r="3" fill="#e04030"/>
+      <!-- chasis moto -->
+      <path d="M26,76 L36,60 L62,56 L80,60 L88,72 L84,78 L26,78Z" fill="#d83818"/>
+      <!-- carenado superior -->
+      <path d="M36,60 L46,48 L66,48 L62,56Z" fill="#b82808"/>
+      <!-- detalle moto linea -->
+      <path d="M36,60 L80,60" stroke="#e85838" stroke-width="1.5" fill="none"/>
+      <!-- asiento -->
+      <path d="M44,50 L72,50 L74,54 L42,54Z" fill="#1a2633" rx="2"/>
+      <!-- manubrio -->
+      <path d="M78,58 L94,50 L97,54 L82,62Z" fill="#b82808"/>
+      <line x1="94" y1="50" x2="98" y2="46" stroke="#7a8e9e" stroke-width="2"/>
+      <line x1="98" y1="46" x2="104" y2="48" stroke="#7a8e9e" stroke-width="2"/>
+
+      <!-- RIDER piernas -->
+      <path d="M50,66 L46,78 L52,80 L54,68Z" fill="#cc5818"/>
+      <path d="M64,66 L70,78 L76,76 L68,66Z" fill="#cc5818"/>
+      <!-- torso naranja -->
+      <path d="M46,44 L68,44 L70,66 L44,66Z" fill="#e87030"/>
+      <!-- brazo izq hacia manubrio -->
+      <path d="M68,50 L86,56 L84,60 L66,54Z" fill="#e87030"/>
+      <!-- brazo der -->
+      <path d="M46,50 L34,56 L36,60 L48,54Z" fill="#e87030"/>
+      <!-- caja delivery -->
+      <rect x="52" y="30" width="20" height="16" fill="#cc1a00"/>
+      <rect x="52" y="30" width="20" height="16" fill="none" stroke="#aa1000" stroke-width="1"/>
+      <line x1="62" y1="30" x2="62" y2="46" stroke="#aa1000" stroke-width="1"/>
+      <line x1="52" y1="38" x2="72" y2="38" stroke="#aa1000" stroke-width="1"/>
+      <!-- tira caja -->
+      <rect x="60" y="28" width="4" height="4" fill="#aa1000"/>
+      <!-- cabeza -->
+      <circle cx="56" cy="30" r="9" fill="#d49050"/>
+      <!-- casco -->
+      <path d="M47,28 Q56,16 65,28 Q64,34 56,35 Q48,34 47,28Z" fill="#d83818"/>
+      <path d="M49,28 Q56,20 63,28" fill="none" stroke="#b02000" stroke-width="1.5"/>
+      <!-- visor -->
+      <path d="M50,30 Q56,26 62,30" fill="rgba(180,220,255,.5)" stroke="rgba(200,230,255,.7)" stroke-width="1.5"/>
+      <!-- nubes -->
+      <ellipse cx="18" cy="16" rx="9" ry="5" fill="rgba(255,255,255,.72)"/>
+      <ellipse cx="25" cy="14" rx="7" ry="4.5" fill="rgba(255,255,255,.72)"/>
+      <ellipse cx="31" cy="16" rx="8" ry="4" fill="rgba(255,255,255,.72)"/>
+      <ellipse cx="84" cy="10" rx="8" ry="4.5" fill="rgba(255,255,255,.65)"/>
+      <ellipse cx="91" cy="8" rx="6" ry="3.5" fill="rgba(255,255,255,.65)"/>
+      <!-- pin GPS -->
+      <circle cx="98" cy="20" r="8" fill="#e04020"/>
+      <circle cx="98" cy="19" r="3.5" fill="#fff"/>
+      <path d="M95,24 Q98,32 101,24" fill="#e04020" stroke="none"/>
+    </svg>
+  </div>
+</div><!-- /sb -->
+
+<div class="main">
+  <div class="krow">
+    <div class="kpi"><div class="kico">
+      <!-- Repartidor con caja - outline -->
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5">
+        <circle cx="12" cy="4" r="2.5"/>
+        <path d="M8 9h8l1 3H7L8 9z"/>
+        <rect x="9" y="12" width="6" height="5" rx="0.5"/>
+        <line x1="11" y1="13.5" x2="11" y2="16.5"/>
+        <path d="M7 12l-2 2v3h2M17 12l2 2v3h-2"/>
+        <path d="M5 17c0 1.1.9 2 2 2h10a2 2 0 0 0 2-2"/>
+      </svg>
+    </div><div class="ktxt"><div class="klbl">Repartidores Activos</div><div class="kval">9.418</div></div></div>
+
+    <div class="kpi"><div class="kico">
+      <!-- Alerta riesgo alto -->
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round">
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+        <line x1="12" y1="9" x2="12" y2="13"/>
+        <line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
+    </div><div class="ktxt"><div class="klbl">En Riesgo Alto</div><div class="kval">2.764</div></div></div>
+
+    <div class="kpi"><div class="kico">
+      <!-- Flecha tendencia subiendo zigzag -->
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="3,17 7,11 11,14 16,7 21,4"/>
+        <polyline points="17,4 21,4 21,8"/>
+      </svg>
+    </div><div class="ktxt"><div class="klbl">Horas Prom. Diarias</div><div class="kval">9,8 h</div></div></div>
+
+    <div class="kpi"><div class="kico">
+      <!-- Indice fatiga - velocimetro gauge -->
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5">
+        <path d="M4.5 16.5A8 8 0 0 1 12 5a8 8 0 0 1 7.5 11.5"/>
+        <line x1="12" y1="13" x2="15.5" y2="9" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>
+        <circle cx="12" cy="13" r="1.2" fill="#fff" stroke="none"/>
+        <line x1="7" y1="15" x2="7.5" y2="14" stroke-width="1.2"/>
+        <line x1="9" y1="11" x2="9.8" y2="10.5" stroke-width="1.2"/>
+        <line x1="15" y1="11" x2="15.8" y2="10.5" stroke-width="1.2"/>
+        <line x1="17" y1="15" x2="16.5" y2="14" stroke-width="1.2"/>
+      </svg>
+    </div><div class="ktxt"><div class="klbl">Indice Fatiga</div><div class="kval">71,4%</div></div></div>
+
+    <div class="kpi"><div class="kico">
+      <!-- Porcentaje / margen -->
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round">
+        <line x1="19" y1="5" x2="5" y2="19"/>
+        <circle cx="6.5" cy="6.5" r="2.5"/>
+        <circle cx="17.5" cy="17.5" r="2.5"/>
+      </svg>
+    </div><div class="ktxt"><div class="klbl">Margen Riesgo</div><div class="kval">29,3%</div></div></div>
+  </div>
+
+  <div class="content">
+
+    <!-- COL 1 -->
+    <div class="col">
+      <div class="card" style="flex:1.3">
+        <div class="ch">
+          <div class="ch-arr"><svg viewBox="0 0 13 13" xmlns="http://www.w3.org/2000/svg"><line x1="2" y1="11" x2="11" y2="2"/><polyline points="5,2 11,2 11,8"/></svg></div>
+          <span class="ch-tit">Horas Trabajadas Mensuales</span>
+          <span class="ch-sub">2025</span>
+        </div>
+        <div class="bchart" id="bc"></div>
+      </div>
+      <div class="card blue" style="flex:1">
+        <div class="ch">
+          <div class="ch-arr"><svg viewBox="0 0 13 13" xmlns="http://www.w3.org/2000/svg"><line x1="2" y1="11" x2="11" y2="2"/><polyline points="5,2 11,2 11,8"/></svg></div>
+          <span class="ch-tit">Burnout por Turno de Trabajo</span>
+          <span class="ch-sub">Todas las ciudades</span>
+        </div>
+        <div class="hbars" id="tb"></div>
+      </div>
+    </div>
+
+    <!-- COL 2 -->
+    <div class="col">
+
+      <!-- DONUT GRANDE - leyendas en esquinas -->
+      <div class="card" style="flex:1">
+        <div class="ch">
+          <div class="ch-arr"><svg viewBox="0 0 13 13" xmlns="http://www.w3.org/2000/svg"><line x1="2" y1="11" x2="11" y2="2"/><polyline points="5,2 11,2 11,8"/></svg></div>
+          <span class="ch-tit">Nivel de Riesgo Burnout</span>
+          <span class="ch-sub">Todos - 2025</span>
+        </div>
+        <div class="donut-wrap" id="donut-wrap">
+          <!-- LEYENDA TOP LEFT - Alto Riesgo -->
+          <div class="dleg-tl">
+            <div class="dleg-name">Office Supplies</div>
+            <div style="font-size:8px;color:#5a6e80;">2.764 &nbsp; 29%</div>
+            <div class="dleg-val" style="color:#1a2a3a;font-size:9px;">Alto Riesgo</div>
+          </div>
+          <!-- LEYENDA TOP RIGHT - Riesgo Medio -->
+          <div class="dleg-tr">
+            <div class="dleg-name">Electronics</div>
+            <div style="font-size:8px;color:#5a6e80;">3.390 &nbsp; 36%</div>
+            <div class="dleg-val" style="color:#5a6e7e;font-size:9px;">Riesgo Medio</div>
+          </div>
+          <!-- DONUT SVG CENTRADO -->
+          <div class="donut-svg">
+            <svg viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="18" cy="18" r="15" fill="none" stroke="#dde4ec" stroke-width="2"/>
+              <circle cx="18" cy="18" r="15" fill="none" stroke="#1a2a3a" stroke-width="2" stroke-dasharray="24.3 70.0" stroke-dashoffset="0"/>
+              <circle cx="18" cy="18" r="15" fill="none" stroke="#7a8e9e" stroke-width="2" stroke-dasharray="30.0 64.3" stroke-dashoffset="-24.3"/>
+              <circle cx="18" cy="18" r="15" fill="none" stroke="#b8c8d4" stroke-width="2" stroke-dasharray="28.0 66.3" stroke-dashoffset="-54.3"/>
+            </svg>
+            <div class="dc">
+              <div class="dcv">9.418</div>
+              <div class="dcl">Total<br>Repartidores</div>
+            </div>
+          </div>
+          <!-- LEYENDA BOTTOM - Bajo Riesgo -->
+          <div class="dleg-bl">
+            <div class="dleg-name">Furniture</div>
+            <div style="font-size:8px;color:#5a6e80;">3.264 &nbsp; 35%</div>
+            <div class="dleg-val" style="color:#8a9eae;font-size:9px;">Bajo Riesgo</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FATIGA - sin punto -->
+      <div class="card" style="flex:1.2">
+        <div class="ch">
+          <div class="ch-arr"><svg viewBox="0 0 13 13" xmlns="http://www.w3.org/2000/svg"><line x1="2" y1="11" x2="11" y2="2"/><polyline points="5,2 11,2 11,8"/></svg></div>
+          <span class="ch-tit">Fatiga por Variable</span>
+          <span class="ch-sub">Todas las ciudades</span>
+        </div>
+        <div class="hbars" id="vb"></div>
+      </div>
+    </div>
+
+    <!-- COL 3 -->
+    <div class="col">
+
+      <!-- MAPA con boceto bracket visible -->
+      <div class="card map-card">
+        <div class="ch" style="align-items:flex-start;gap:4px;">
+          <div style="display:flex;flex-direction:column;gap:0;margin-right:2px;flex-shrink:0;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4a6a8a" stroke-width="1.8" stroke-linecap="round"><path d="M12 2C8.7 2 6 4.7 6 8c0 5 6 13 6 13s6-8 6-13c0-3.3-2.7-6-6-6z"/><circle cx="12" cy="8" r="2.5"/></svg>
+          </div>
+          <div style="flex:1;">
+            <div class="ch-tit">Burnout por<br>Ciudad</div>
+          </div>
+          <span style="font-size:9px;color:#7a8e9e;white-space:nowrap;padding-top:2px;">2025</span>
+        </div>
+        <div class="mi" id="mapBox">
+          <!-- COLOMBIA MAP - paths geograficos reales basados en coordenadas oficiales escaladas -->
+          <!-- TREEMAP BURNOUT POR CIUDAD -->
+          <div id="treemap" style="width:100%;height:100%;position:relative;overflow:hidden;"></div>
+          <div class="mtp" id="mtp"></div>
+          <div class="mcr">Datos simulados 2025</div>
+        </div>
+
+      </div>
+
+      <!-- CIUDADES con boceto bracket -->
+      <div class="card" style="flex:1;">
+        <div class="ch" style="align-items:center;gap:4px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4a6a8a" stroke-width="1.8" stroke-linecap="round" style="flex-shrink:0;"><path d="M12 2C8.7 2 6 4.7 6 8c0 5 6 13 6 13s6-8 6-13c0-3.3-2.7-6-6-6z"/><circle cx="12" cy="8" r="2.5"/></svg>
+          <span class="ch-tit">Casos por Ciudad</span>
+          <span class="ch-sub" style="margin-left:auto;white-space:nowrap;">Todas las ciudades</span>
+        </div>
+        <div class="hbars" id="cb"></div>
+      </div>
+    </div>
+
+  </div>
+</div><!-- /main -->
+</div><!-- /body -->
+</div><!-- /pg-dashboard -->
+
+
+<!-- ===== BASE DE DATOS ===== -->
+<div class="page" id="pg-datos">
+<div class="topbar"><div class="sub">Seguimiento mensual - 2025</div><h1>Base de Datos - Repartidores Rappi 2025</h1></div>
+<div class="body">
+  <div class="sb">
+    <div class="sb-logo"><div class="dots"><span class="dk"></span><span></span><span class="dk"></span><span></span><span></span><span class="dk"></span><span></span><span class="dk"></span><span class="dk"></span><span></span><span></span><span class="dk"></span></div></div>
+    <div class="nav">
+      <div class="nv" onclick="goPage('dashboard')"><div class="ni"><div class="ico-dash"><span style="height:6px;"></span><span style="height:6px;"></span><span style="height:6px;"></span><span style="height:6px;"></span></div></div>Dashboard</div>
+      <div class="nv act" onclick="goPage('datos')"><div class="ni"><div class="ico-db"><span></span><span></span><span></span></div></div>Base de Datos</div>
+      <div class="nv" onclick="goPage('analisis')"><div class="ni"><div class="ico-an"><span style="height:5px;"></span><span style="height:9px;"></span><span style="height:13px;"></span><span style="height:7px;"></span><span style="height:16px;"></span></div></div>Analisis</div>
+    </div>
+    <div class="sb-rider" style="padding:10px;display:flex;justify-content:center;border-top:1px solid #a8b8c8;margin-top:auto;">
+      <svg width="100" height="90" viewBox="0 0 110 100"><ellipse cx="55" cy="95" rx="36" ry="4" fill="rgba(0,0,0,.12)"/><circle cx="26" cy="82" r="13" fill="none" stroke="#b02010" stroke-width="3"/><circle cx="26" cy="82" r="7" fill="#cc2810"/><circle cx="82" cy="82" r="13" fill="none" stroke="#b02010" stroke-width="3"/><circle cx="82" cy="82" r="7" fill="#cc2810"/><path d="M26,76 L36,60 L62,56 L80,60 L88,72 L84,78 L26,78Z" fill="#d83818"/><path d="M36,60 L46,48 L66,48 L62,56Z" fill="#b82808"/><path d="M44,50 L72,50 L74,54 L42,54Z" fill="#1a2633"/><path d="M50,66 L46,78 L52,80 L54,68Z" fill="#cc5818"/><path d="M64,66 L70,78 L76,76 L68,66Z" fill="#cc5818"/><path d="M46,44 L68,44 L70,66 L44,66Z" fill="#e87030"/><rect x="52" y="30" width="20" height="16" fill="#cc1a00"/><circle cx="56" cy="30" r="9" fill="#d49050"/><path d="M47,28 Q56,16 65,28 Q64,34 56,35 Q48,34 47,28Z" fill="#d83818"/><ellipse cx="20" cy="16" rx="9" ry="5" fill="rgba(255,255,255,.7)"/><ellipse cx="86" cy="10" rx="8" ry="4.5" fill="rgba(255,255,255,.65)"/><circle cx="98" cy="20" r="8" fill="#e04020"/><circle cx="98" cy="19" r="3.5" fill="#fff"/></svg>
+    </div>
+  </div>
+  <div class="main"><div class="page-inner" style="padding:12px 16px;">
+    <div class="pg-title">Registros de Repartidores Rappi 2025</div>
+    <div class="pg-sub">Muestra anonimizada &nbsp;|&nbsp; Total 9.418 repartidores activos &nbsp;|&nbsp; Fuente: Dataset simulado 2025</div>
+    <!-- Formula bar style -->
+    <div class="xl-toolbar">
+      <div class="xl-cell-ref">A1</div>
+      <span class="xl-fx">fx</span>
+      <div class="xl-formula">=REGISTRO_REPARTIDOR(ID, Ciudad, Turno, Horas, Fatiga, Riesgo)</div>
+    </div>
+    <div class="xl-wrap">
+      <table class="xl-table" onclick="xlClick(event)">
+        <thead>
+          <tr>
+            <th class="rn"></th>
+            <th>A &nbsp; ID Repartidor</th>
+            <th>B &nbsp; Ciudad</th>
+            <th>C &nbsp; Turno</th>
+            <th>D &nbsp; Horas / Dia</th>
+            <th>E &nbsp; Pedidos</th>
+            <th>F &nbsp; Ind. Fatiga</th>
+            <th>G &nbsp; Dias Semana</th>
+            <th>H &nbsp; Ingreso Dia</th>
+            <th>I &nbsp; Nivel Riesgo</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="rn">1</td><td>RPP-2025-0041</td><td>Bogota</td><td>Nocturno</td><td>11,2 h</td><td>38</td><td>88%</td><td>6</td><td>$82.000</td><td><span class="xb xb-alto">Alto</span></td></tr>
+          <tr><td class="rn">2</td><td>RPP-2025-0082</td><td>Medellin</td><td>Tarde-Noche</td><td>9,8 h</td><td>31</td><td>72%</td><td>5</td><td>$68.000</td><td><span class="xb xb-medio">Medio</span></td></tr>
+          <tr><td class="rn">3</td><td>RPP-2025-0117</td><td>Cali</td><td>Diurno</td><td>7,4 h</td><td>22</td><td>45%</td><td>5</td><td>$54.000</td><td><span class="xb xb-bajo">Bajo</span></td></tr>
+          <tr><td class="rn">4</td><td>RPP-2025-0203</td><td>Barranquilla</td><td>Nocturno</td><td>10,5 h</td><td>35</td><td>81%</td><td>6</td><td>$75.000</td><td><span class="xb xb-alto">Alto</span></td></tr>
+          <tr><td class="rn">5</td><td>RPP-2025-0241</td><td>Bucaramanga</td><td>Partido</td><td>8,9 h</td><td>28</td><td>65%</td><td>5</td><td>$62.000</td><td><span class="xb xb-medio">Medio</span></td></tr>
+          <tr><td class="rn">6</td><td>RPP-2025-0318</td><td>Bogota</td><td>Madrugada</td><td>12,1 h</td><td>42</td><td>94%</td><td>7</td><td>$88.000</td><td><span class="xb xb-alto">Alto</span></td></tr>
+          <tr><td class="rn">7</td><td>RPP-2025-0374</td><td>Pereira</td><td>Diurno</td><td>6,8 h</td><td>19</td><td>38%</td><td>4</td><td>$49.000</td><td><span class="xb xb-bajo">Bajo</span></td></tr>
+          <tr><td class="rn">8</td><td>RPP-2025-0412</td><td>Cali</td><td>Tarde-Noche</td><td>9,2 h</td><td>29</td><td>68%</td><td>5</td><td>$65.000</td><td><span class="xb xb-medio">Medio</span></td></tr>
+          <tr><td class="rn">9</td><td>RPP-2025-0489</td><td>Cartagena</td><td>Nocturno</td><td>10,8 h</td><td>36</td><td>84%</td><td>6</td><td>$78.000</td><td><span class="xb xb-alto">Alto</span></td></tr>
+          <tr><td class="rn">10</td><td>RPP-2025-0521</td><td>Medellin</td><td>Diurno</td><td>7,1 h</td><td>21</td><td>42%</td><td>4</td><td>$51.000</td><td><span class="xb xb-bajo">Bajo</span></td></tr>
+          <tr><td class="rn">11</td><td>RPP-2025-0588</td><td>Bogota</td><td>Nocturno</td><td>11,8 h</td><td>40</td><td>91%</td><td>6</td><td>$85.000</td><td><span class="xb xb-alto">Alto</span></td></tr>
+          <tr><td class="rn">12</td><td>RPP-2025-0634</td><td>Manizales</td><td>Partido</td><td>8,2 h</td><td>25</td><td>60%</td><td>5</td><td>$58.000</td><td><span class="xb xb-medio">Medio</span></td></tr>
+          <tr><td class="rn">13</td><td>RPP-2025-0701</td><td>Cucuta</td><td>Diurno</td><td>7,8 h</td><td>23</td><td>48%</td><td>5</td><td>$55.000</td><td><span class="xb xb-bajo">Bajo</span></td></tr>
+          <tr><td class="rn">14</td><td>RPP-2025-0742</td><td>Ibague</td><td>Tarde-Noche</td><td>9,5 h</td><td>30</td><td>70%</td><td>5</td><td>$67.000</td><td><span class="xb xb-medio">Medio</span></td></tr>
+          <tr><td class="rn">15</td><td>RPP-2025-0819</td><td>Bogota</td><td>Madrugada</td><td>11,5 h</td><td>39</td><td>89%</td><td>7</td><td>$84.000</td><td><span class="xb xb-alto">Alto</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div></div>
+</div>
+</div>
+
+<!-- ===== ANALISIS ===== -->
+<div class="page" id="pg-analisis">
+<div class="topbar"><div class="sub">Seguimiento mensual - 2025</div><h1>Analisis - Burnout Repartidores Rappi 2025</h1></div>
+<div class="body">
+  <div class="sb">
+    <div class="sb-logo"><div class="dots"><span class="dk"></span><span></span><span class="dk"></span><span></span><span></span><span class="dk"></span><span></span><span class="dk"></span><span class="dk"></span><span></span><span></span><span class="dk"></span></div></div>
+    <div class="nav">
+      <div class="nv" onclick="goPage('dashboard')"><div class="ni"><div class="ico-dash"><span style="height:6px;"></span><span style="height:6px;"></span><span style="height:6px;"></span><span style="height:6px;"></span></div></div>Dashboard</div>
+      <div class="nv" onclick="goPage('datos')"><div class="ni"><div class="ico-db"><span></span><span></span><span></span></div></div>Base de Datos</div>
+      <div class="nv act" onclick="goPage('analisis')"><div class="ni"><div class="ico-an"><span style="height:5px;"></span><span style="height:9px;"></span><span style="height:13px;"></span><span style="height:7px;"></span><span style="height:16px;"></span></div></div>Analisis</div>
+    </div>
+    <div class="sb-rider" style="padding:10px;display:flex;justify-content:center;border-top:1px solid #a8b8c8;margin-top:auto;">
+      <svg width="100" height="90" viewBox="0 0 110 100"><ellipse cx="55" cy="95" rx="36" ry="4" fill="rgba(0,0,0,.12)"/><circle cx="26" cy="82" r="13" fill="none" stroke="#b02010" stroke-width="3"/><circle cx="26" cy="82" r="7" fill="#cc2810"/><circle cx="82" cy="82" r="13" fill="none" stroke="#b02010" stroke-width="3"/><circle cx="82" cy="82" r="7" fill="#cc2810"/><path d="M26,76 L36,60 L62,56 L80,60 L88,72 L84,78 L26,78Z" fill="#d83818"/><path d="M36,60 L46,48 L66,48 L62,56Z" fill="#b82808"/><path d="M44,50 L72,50 L74,54 L42,54Z" fill="#1a2633"/><path d="M50,66 L46,78 L52,80 L54,68Z" fill="#cc5818"/><path d="M64,66 L70,78 L76,76 L68,66Z" fill="#cc5818"/><path d="M46,44 L68,44 L70,66 L44,66Z" fill="#e87030"/><rect x="52" y="30" width="20" height="16" fill="#cc1a00"/><circle cx="56" cy="30" r="9" fill="#d49050"/><path d="M47,28 Q56,16 65,28 Q64,34 56,35 Q48,34 47,28Z" fill="#d83818"/><ellipse cx="20" cy="16" rx="9" ry="5" fill="rgba(255,255,255,.7)"/><ellipse cx="86" cy="10" rx="8" ry="4.5" fill="rgba(255,255,255,.65)"/><circle cx="98" cy="20" r="8" fill="#e04020"/><circle cx="98" cy="19" r="3.5" fill="#fff"/></svg>
+    </div>
+  </div>
+  <div class="main"><div class="page-inner" style="padding:12px 16px;">
+    <div class="pg-title">Analisis Estadistico - Burnout Repartidores Rappi 2025</div>
+    <div class="pg-sub">Modelo predictivo Random Forest &nbsp;|&nbsp; Precision: 87,4% &nbsp;|&nbsp; Dataset: 9.418 repartidores</div>
+    <div class="xl-toolbar">
+      <div class="xl-cell-ref">A1</div>
+      <span class="xl-fx">fx</span>
+      <div class="xl-formula">=ANALISIS_BURNOUT(Factor, Impacto, Nivel, Recomendacion, Trimestre)</div>
+    </div>
+    <div class="an-xl-wrap">
+      <table class="an-xl">
+        <thead>
+          <tr>
+            <th style="width:28px;background:#2a3643;"></th>
+            <th>A &nbsp; Categoria</th>
+            <th>B &nbsp; Variable / Factor</th>
+            <th>C &nbsp; Valor / Resultado</th>
+            <th>D &nbsp; Impacto en Riesgo</th>
+            <th>E &nbsp; Recomendacion</th>
+            <th>F &nbsp; Prioridad</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="rn">1</td><td class="cat">Factores</td><td>Horas diarias &gt; 9h</td><td class="val">10,6 h promedio</td><td class="bad">+40% riesgo</td><td>Limitar a 8h/dia</td><td><span class="xb xb-alto">Alta</span></td></tr>
+          <tr><td class="rn">2</td><td class="cat">Factores</td><td>Turno nocturno constante</td><td class="val">82% burnout nocturno</td><td class="bad">+35% riesgo</td><td>Rotar max 3 turnos/sem</td><td><span class="xb xb-alto">Alta</span></td></tr>
+          <tr><td class="rn">3</td><td class="cat">Factores</td><td>Sin dias de descanso</td><td class="val">6-7 dias seguidos</td><td class="bad">+28% riesgo</td><td>Descanso 2 dias/semana</td><td><span class="xb xb-alto">Alta</span></td></tr>
+          <tr><td class="rn">4</td><td class="cat">Factores</td><td>Pedidos por hora elevado</td><td class="val">&gt; 4 pedidos/hora</td><td class="warn">+22% riesgo</td><td>Cap de pedidos por hora</td><td><span class="xb xb-medio">Media</span></td></tr>
+          <tr><td class="rn">5</td><td class="cat">Factores</td><td>Ingreso por debajo promedio</td><td class="val">&lt; $55.000/dia</td><td class="warn">+18% riesgo</td><td>Incentivos minimos</td><td><span class="xb xb-medio">Media</span></td></tr>
+          <tr><td class="rn">6</td><td class="cat">Metricas</td><td>Repartidores analizados</td><td class="val">9.418</td><td>-</td><td>-</td><td>-</td></tr>
+          <tr><td class="rn">7</td><td class="cat">Metricas</td><td>Precision modelo (RF)</td><td class="val good">87,4%</td><td class="good">Buena</td><td>Reentrenar cada Q</td><td><span class="xb xb-bajo">Baja</span></td></tr>
+          <tr><td class="rn">8</td><td class="cat">Metricas</td><td>Horas pico de riesgo</td><td class="val">10pm - 2am</td><td class="bad">Critico</td><td>Alertas automaticas</td><td><span class="xb xb-alto">Alta</span></td></tr>
+          <tr><td class="rn">9</td><td class="cat">Metricas</td><td>Ciudad mayor riesgo</td><td class="val">Bogota D.C.</td><td class="bad">34% casos</td><td>Programa piloto Bogota</td><td><span class="xb xb-alto">Alta</span></td></tr>
+          <tr><td class="rn">10</td><td class="cat">Trimestral</td><td>Q1 2025 - Riesgo alto</td><td class="val">31,2%</td><td class="bad">Tendencia alta</td><td>Intervencion inmediata</td><td><span class="xb xb-alto">Alta</span></td></tr>
+          <tr><td class="rn">11</td><td class="cat">Trimestral</td><td>Q2 2025 - Riesgo alto</td><td class="val warn">28,8%</td><td class="warn">Mejorando</td><td>Mantener politicas</td><td><span class="xb xb-medio">Media</span></td></tr>
+          <tr><td class="rn">12</td><td class="cat">Trimestral</td><td>Q3 2025 - Riesgo alto</td><td class="val warn">29,3%</td><td class="warn">Estable</td><td>Reforzar seguimiento</td><td><span class="xb xb-medio">Media</span></td></tr>
+          <tr><td class="rn">13</td><td class="cat">Trimestral</td><td>Q4 2025 - Meta</td><td class="val good">&lt; 25%</td><td class="good">Objetivo</td><td>Implementar todas medidas</td><td><span class="xb xb-bajo">Meta</span></td></tr>
+          <tr><td class="rn">14</td><td class="cat">Modelo</td><td>Variable mas importante</td><td class="val">Horas diarias</td><td class="bad">Feature #1 RF</td><td>Reduccion prioritaria</td><td><span class="xb xb-alto">Alta</span></td></tr>
+          <tr><td class="rn">15</td><td class="cat">Modelo</td><td>Reduccion recomendada</td><td class="val good">-2h/dia promedio</td><td class="good">-15% burnout</td><td>Politica maxima 8h</td><td><span class="xb xb-alto">Alta</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div></div>
+</div>
+</div>
+
+<!-- TABS -->
+<div class="tabbar">
+  <div class="tab on" id="tab-inicio" onclick="goPage('dashboard')">Inicio</div>
+  <div class="tab" id="tab-datos" onclick="goPage('datos')">Base de Datos</div>
+  <div class="tab dk" id="tab-analisis" onclick="goPage('analisis')">Analisis</div>
+  <div class="tplus">+</div>
+</div>
+
+</div><!-- /app -->
+<script>
+function goPage(name){
+  var map={dashboard:'pg-dashboard',datos:'pg-datos',analisis:'pg-analisis'};
+  var tabs={dashboard:'tab-inicio',datos:'tab-datos',analisis:'tab-analisis'};
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('on');});
+  var pg=document.getElementById(map[name]);if(pg)pg.classList.add('active');
+  var tb=document.getElementById(tabs[name]);if(tb)tb.classList.add('on');
+}
+
+// ============================================================
+// DATOS POR MES Y QUARTER
+// ============================================================
+var DATA = {
+  // horas promedio por mes
+  horas: {
+    ene:[7.8], feb:[8.2], mar:[8.6], abr:[9.1], may:[9.5], jun:[8.9],
+    jul:[8.2], ago:[8.8], sep:[10.1], oct:[10.6], nov:[9.8], dic:[10.2]
+  },
+  // riesgo alto por mes (cantidad)
+  riesgoAlto: {
+    ene:2100, feb:2180, mar:2250, abr:2400, may:2600, jun:2450,
+    jul:2200, ago:2350, sep:2700, oct:2764, nov:2650, dic:2800
+  },
+  // fatiga promedio por mes
+  fatiga: {
+    ene:62, feb:65, mar:67, abr:70, may:73, jun:71,
+    jul:65, ago:68, sep:74, oct:71, nov:70, dic:75
+  },
+  // horas por quarter
+  horasQ: { 'Q1 2025':8.2, 'Q2 2025':9.2, 'Q3 2025':9.0, 'Q4 2025':10.2 },
+  riesgoQ: { 'Q1 2025':2177, 'Q2 2025':2483, 'Q3 2025':2417, 'Q4 2025':2738 },
+  fatigaQ: { 'Q1 2025':64, 'Q2 2025':71, 'Q3 2025':69, 'Q4 2025':72 }
+};
+
+var meses_all = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+
+// Mapa quarter -> meses
+var QUARTER_MESES = {
+  'Q1 2025': ['ene','feb','mar'],
+  'Q2 2025': ['abr','may','jun'],
+  'Q3 2025': ['jul','ago','sep'],
+  'Q4 2025': ['oct','nov','dic']
+};
+
+function avg(arr){ return arr.length ? arr.reduce(function(a,b){return a+b;},0)/arr.length : 0; }
+
+// Al seleccionar un quarter, activa/desactiva sus meses en el sidebar
+function toggleQuarter(btn){
+  btn.classList.toggle('on');
+  var q = btn.getAttribute('data-q');
+  var mesesDelQ = QUARTER_MESES[q];
+  var isOn = btn.classList.contains('on');
+  mesesDelQ.forEach(function(m){
+    var mb = document.querySelector('.sfb[data-mes="'+m+'"]');
+    if(mb){ if(isOn) mb.classList.add('on'); else mb.classList.remove('on'); }
+  });
+  updateDashboard();
+}
+
+function getActiveMeses(){
+  return meses_all.filter(function(m){
+    var btn = document.querySelector('.sfb[data-mes="'+m+'"]');
+    return btn && btn.classList.contains('on');
+  });
+}
+
+function updateDashboard(){
+  var mesesSel = getActiveMeses();
+  // Si no hay ninguno activo, mostrar todos
+  if(mesesSel.length === 0) mesesSel = meses_all;
+
+  var horasArr = mesesSel.map(function(m){ return DATA.horas[m][0]; });
+  var riesgoArr = mesesSel.map(function(m){ return DATA.riesgoAlto[m]; });
+  var fatigaArr = mesesSel.map(function(m){ return DATA.fatiga[m]; });
+
+  var horasProm = avg(horasArr);
+  var riesgoTotal = Math.round(avg(riesgoArr));
+  var fatigaProm = Math.round(avg(fatigaArr));
+
+  // Leer chips activos de la barra superior
+  var chipHoras   = !!document.querySelector('[data-chip="horas"].on');
+  var chipFatiga  = !!document.querySelector('[data-chip="fatiga"].on');
+  var chipAlto    = !!document.querySelector('[data-chip="alto"].on');
+  var chipMedio   = !!document.querySelector('[data-chip="medio"].on');
+  var chipBajo    = !!document.querySelector('[data-chip="bajo"].on');
+
+  // Ciudades activas
+  var ciudadesActivas = [];
+  var CIUDAD_FACTOR = { bogota:1, medellin:0.608, cali:0.441, barranquilla:0.355 };
+  document.querySelectorAll('[data-ciudad].on').forEach(function(c){ ciudadesActivas.push(c.getAttribute('data-ciudad')); });
+  if(ciudadesActivas.length === 0) ciudadesActivas = ['bogota','medellin','cali','barranquilla'];
+
+  // Factor de ciudad: promedio de los factores activos
+  var factorCiudad = 0;
+  ciudadesActivas.forEach(function(c){ factorCiudad += (CIUDAD_FACTOR[c] || 0.5); });
+  factorCiudad = factorCiudad / ciudadesActivas.length;
+
+  // Ajustar riesgo por ciudad
+  var riesgoAjustado = Math.round(riesgoTotal * factorCiudad * ciudadesActivas.length * 0.52);
+
+  // Si solo Alto, Medio o Bajo estan activos, ajustar el numero mostrado
+  var nivelMult = 0;
+  var nivelCount = 0;
+  if(chipAlto)  { nivelMult += 1.0; nivelCount++; }
+  if(chipMedio) { nivelMult += 0.76; nivelCount++; }
+  if(chipBajo)  { nivelMult += 0.58; nivelCount++; }
+  if(nivelCount === 0){ nivelMult = 1.0; } // si ninguno activo mostrar todo
+  var riesgoFinal = Math.round(riesgoAjustado * (nivelCount > 0 ? nivelMult / nivelCount : 1) * nivelCount || riesgoTotal);
+  if(nivelCount === 0) riesgoFinal = riesgoTotal;
+
+  // Actualizar KPIs
+  var kvals = document.querySelectorAll('#pg-dashboard .kval');
+  if(kvals[1]) kvals[1].textContent = riesgoFinal.toLocaleString('es-CO');
+  if(kvals[2] && chipHoras)  kvals[2].textContent = horasProm.toFixed(1)+' h';
+  if(kvals[2] && !chipHoras) kvals[2].textContent = '---';
+  if(kvals[3] && chipFatiga)  kvals[3].textContent = fatigaProm+',0%';
+  if(kvals[3] && !chipFatiga) kvals[3].textContent = '---';
+
+  // Bar chart: mostrar solo si Horas activo
+  var mesesMostrar = mesesSel.length > 0 ? mesesSel : meses_all;
+  if(chipHoras){
+    renderBarChart(mesesMostrar);
+    document.getElementById('bc').parentElement.style.opacity = '1';
+  } else {
+    document.getElementById('bc').parentElement.style.opacity = '0.3';
+  }
+
+  // Donut: mostrar segmentos segun nivel activo
+  var altoVal  = chipAlto  ? Math.round(riesgoTotal * 0.29) : 0;
+  var medioVal = chipMedio ? Math.round(riesgoTotal * 1.23 * 0.36) : 0;
+  var bajoVal  = chipBajo  ? Math.round(riesgoTotal * 1.18 * 0.35) : 0;
+  if(!chipAlto && !chipMedio && !chipBajo){
+    altoVal  = Math.round(riesgoTotal);
+    medioVal = Math.round(riesgoTotal * 1.23);
+    bajoVal  = Math.round(riesgoTotal * 1.18);
+  }
+  var totalDonut = altoVal + medioVal + bajoVal || 1;
+  updateDonut(altoVal, medioVal, bajoVal, totalDonut);
+
+  // Fatiga
+  if(chipFatiga || chipHoras){
+    renderFatiga(fatigaProm);
+    document.getElementById('vb').parentElement.style.opacity = '1';
+  } else {
+    document.getElementById('vb').parentElement.style.opacity = '0.35';
+  }
+
+  // Ciudades filtradas
+  renderCiudades(riesgoTotal, ciudadesActivas);
+  renderTreemap(riesgoTotal);
+}
+
+function renderBarChart(mesesArr){
+  var el = document.getElementById('bc');
+  el.innerHTML = '';
+  var vals = mesesArr.map(function(m){ return DATA.horas[m][0]; });
+  var mx = Math.max.apply(null, vals);
+  mesesArr.forEach(function(m){
+    var v = DATA.horas[m][0];
+    var p = (v/mx)*88;
+    var c = document.createElement('div'); c.className='bcol';
+    c.innerHTML='<div class="bv">'+v.toFixed(1)+'</div><div class="bb'+(v>9.5?' hi':'')+'" style="height:'+p+'%"></div><div class="bl">'+m+'</div>';
+    el.appendChild(c);
+  });
+}
+
+function updateDonut(alto, medio, bajo, total){
+  var circ = 2*Math.PI*15; // r=15, circ~94.25
+  var pA = (alto/total)*circ;
+  var pM = (medio/total)*circ;
+  var pB = (bajo/total)*circ;
+  var circles = document.querySelectorAll('#donut-wrap svg circle');
+  if(circles[1]){ circles[1].setAttribute('stroke-dasharray', pA.toFixed(1)+' '+(circ-pA).toFixed(1)); }
+  if(circles[2]){ circles[2].setAttribute('stroke-dasharray', pM.toFixed(1)+' '+(circ-pM).toFixed(1)); circles[2].setAttribute('stroke-dashoffset', (-pA).toFixed(1)); }
+  if(circles[3]){ circles[3].setAttribute('stroke-dasharray', pB.toFixed(1)+' '+(circ-pB).toFixed(1)); circles[3].setAttribute('stroke-dashoffset', (-(pA+pM)).toFixed(1)); }
+  var dcv = document.querySelector('#donut-wrap .dcv');
+  if(dcv) dcv.textContent = total.toLocaleString('es-CO');
+  // leyendas
+  var legs = document.querySelectorAll('#donut-wrap .dleg-val');
+  var pcts = document.querySelectorAll('#donut-wrap .dleg-val + div, #donut-wrap .dleg-name + div');
+  // update counts in legend subtitles
+  var subs = document.querySelectorAll('#donut-wrap .dleg-tl div:nth-child(2), #donut-wrap .dleg-tr div:nth-child(2), #donut-wrap .dleg-bl div:nth-child(2)');
+  var pA2 = Math.round(alto/total*100), pM2 = Math.round(medio/total*100), pB2 = Math.round(bajo/total*100);
+  if(subs[0]) subs[0].textContent = alto.toLocaleString('es-CO')+'   '+pA2+'%';
+  if(subs[1]) subs[1].textContent = medio.toLocaleString('es-CO')+'   '+pM2+'%';
+  if(subs[2]) subs[2].textContent = bajo.toLocaleString('es-CO')+'   '+pB2+'%';
+}
+
+function renderFatiga(fatBase){
+  var el = document.getElementById('vb');
+  el.innerHTML='';
+  var d=[
+    {l:'Horas diarias',p:Math.min(99,Math.round(fatBase*1.26)),h:1},
+    {l:'Sin descanso',p:Math.min(99,Math.round(fatBase*1.07))},
+    {l:'Turno nocturno',p:Math.min(99,Math.round(fatBase*0.98))},
+    {l:'Pedidos/hora',p:Math.min(99,Math.round(fatBase*0.88))},
+    {l:'Distancia km',p:Math.min(99,Math.round(fatBase*0.76))},
+    {l:'Dias seguidos',p:Math.min(99,Math.round(fatBase*0.67))},
+    {l:'Ingreso bajo',p:Math.min(99,Math.round(fatBase*0.56))},
+    {l:'Clima adverso',p:Math.min(99,Math.round(fatBase*0.46))},
+    {l:'Soporte tecnico',p:Math.min(99,Math.round(fatBase*0.34))}
+  ];
+  d.forEach(function(x){
+    var r=document.createElement('div');r.className='hr';
+    r.innerHTML='<div class="hl">'+x.l+'</div><div class="ht"><div class="hf'+(x.h?' hi':'')+'" style="width:'+x.p+'%"></div></div><div class="hp">'+x.p+'%</div>';
+    el.appendChild(r);
+  });
+}
+
+function renderCiudades(base, ciudadesFiltro){
+  var el = document.getElementById('cb');
+  el.innerHTML='';
+  var factor = base/2764;
+  var todas=[
+    {n:'Bogota',    key:'bogota',        v:base,                     p:90, h:1},
+    {n:'Medellin',  key:'medellin',      v:Math.round(1680*factor),  p:74},
+    {n:'Cali',      key:'cali',          v:Math.round(1218*factor),  p:62},
+    {n:'Barranquilla',key:'barranquilla',v:Math.round(982*factor),   p:50},
+    {n:'Bucaramanga',key:'otro',         v:Math.round(744*factor),   p:40},
+    {n:'Pereira',   key:'otro',          v:Math.round(598*factor),   p:33},
+    {n:'Cartagena', key:'otro',          v:Math.round(562*factor),   p:30},
+    {n:'Manizales', key:'otro',          v:Math.round(480*factor),   p:26},
+    {n:'Cucuta',    key:'otro',          v:Math.round(412*factor),   p:22},
+    {n:'Ibague',    key:'otro',          v:Math.round(318*factor),   p:17}
+  ];
+  // Filtrar: si alguna ciudad de la barra esta activa, resaltar esas
+  var activas = ciudadesFiltro || ['bogota','medellin','cali','barranquilla'];
+  todas.forEach(function(x){
+    var isActive = activas.indexOf(x.key) !== -1 || x.key === 'otro';
+    var r=document.createElement('div');r.className='hr';
+    r.style.opacity = isActive ? '1' : '0.4';
+    r.innerHTML='<div class="hl">'+x.n+'</div><div class="ht"><div class="hf'+(x.h?' hi':'')+'" style="width:'+x.p+'%"></div></div><div class="hp">'+x.v.toLocaleString('es-CO')+'</div>';
+    el.appendChild(r);
+  });
+}
+
+// BAR CHART - initial render all months
+renderBarChart(meses_all);
+
+// TURNO - solo barra limpia, SIN punto blanco
+(function(){
+  var d=[{l:'Nocturno',p:82,h:1},{l:'Madrugada',p:68},{l:'Tarde-Noche',p:57},{l:'Partido',p:44},{l:'Diurno',p:29}];
+  var el=document.getElementById('tb');
+  d.forEach(function(x){
+    var r=document.createElement('div');r.className='hr';
+    r.innerHTML='<div class="hl">'+x.l+'</div><div class="ht"><div class="hf'+(x.h?' hi':'')+'\" style="width:'+x.p+'%"></div></div><div class="hp">'+x.p+'%</div>';
+    el.appendChild(r);
+  });
+})();
+
+// FATIGA - initial render
+renderFatiga(71);
+
+// CIUDADES - initial render
+renderCiudades(2764);
+
+// ============================================================
+// TREEMAP - Burnout por Ciudad
+// ============================================================
+var TREEMAP_DATA = [
+  {n:'Bogota',     v:2764, nivel:'alto',  color:'#1a3a5a'},
+  {n:'Medellin',   v:1680, nivel:'alto',  color:'#2a4a6a'},
+  {n:'Cali',       v:1218, nivel:'medio', color:'#4a6a84'},
+  {n:'Barranquilla',v:982, nivel:'medio', color:'#5a7a94'},
+  {n:'Bucaramanga',v:744,  nivel:'medio', color:'#6a8aa4'},
+  {n:'Pereira',    v:598,  nivel:'medio', color:'#7a9ab4'},
+  {n:'Cartagena',  v:562,  nivel:'bajo',  color:'#8aaabf'},
+  {n:'Manizales',  v:480,  nivel:'bajo',  color:'#9ab8cc'},
+  {n:'Cucuta',     v:412,  nivel:'bajo',  color:'#aac5d8'},
+  {n:'Ibague',     v:318,  nivel:'bajo',  color:'#b8cedd'}
+];
+
+function renderTreemap(base) {
+  var el = document.getElementById('treemap');
+  if(!el) return;
+  var W = el.offsetWidth || 200;
+  var H = el.offsetHeight || 200;
+
+  var factor = base / 2764;
+  var data = TREEMAP_DATA.map(function(d,i){
+    return {n:d.n, v:Math.round(d.v*factor), nivel:d.nivel, color:d.color};
+  });
+
+  var total = data.reduce(function(a,b){return a+b.v;},0);
+
+  // Simple squarify treemap algorithm
+  var rects = squarify(data, total, 0, 0, W, H);
+
+  var html = '';
+  rects.forEach(function(r){
+    var w = r.x2-r.x1, h = r.y2-r.y1;
+    var fontSize = Math.min(12, Math.max(7, w/r.n.length*1.2));
+    var showVal = h > 24 && w > 38;
+    var showName = h > 14 && w > 28;
+    var style = "position:absolute;left:"+r.x1+"px;top:"+r.y1+"px;width:"+w+"px;height:"+h+"px;";
+    style += "background:"+r.color+";box-sizing:border-box;border:1.5px solid rgba(255,255,255,0.35);";
+    style += "overflow:hidden;cursor:pointer;transition:filter .15s;";
+    var inner = "";
+    if(showName) inner += "<div style=\"color:#fff;font-size:"+fontSize+"px;font-weight:700;padding:3px 4px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;\">"+r.n+"</div>";
+    if(showVal)  inner += "<div style=\"color:rgba(255,255,255,0.82);font-size:"+(fontSize-1)+"px;padding:0 4px;\">"+r.v.toLocaleString("es-CO")+"</div>";
+    html += "<div style=\""+style+"\" data-name=\""+r.n+"\" data-val=\""+r.v+"\" onmouseenter=\"tmHover(this,event)\" onmouseleave=\"tmLeave(this)\">"+inner+"</div>";
+  });
+
+  // Tooltip
+  html += '<div id="tm-tip" style="position:absolute;display:none;background:rgba(13,30,45,.92);color:#fff;padding:3px 8px;font-size:9px;pointer-events:none;white-space:nowrap;z-index:20;"></div>';
+  el.innerHTML = html;
+}
+
+function squarify(data, total, x1, y1, x2, y2) {
+  // Simple row-based layout
+  var results = [];
+  var items = data.slice().sort(function(a,b){return b.v-a.v;});
+  var remaining = {x1:x1,y1:y1,x2:x2,y2:y2};
+  var remTotal = total;
+
+  while(items.length > 0) {
+    var W = remaining.x2 - remaining.x1;
+    var H = remaining.y2 - remaining.y1;
+    var horizontal = W >= H;
+
+    // Take items for this row
+    var rowItems = [];
+    var rowSum = 0;
+    var i = 0;
+    var bestRatio = Infinity;
+
+    while(i < items.length) {
+      rowItems.push(items[i]);
+      rowSum += items[i].v;
+      var ratio = calcWorstRatio(rowItems, rowSum, W, H, remTotal, horizontal);
+      if(i > 0 && ratio > bestRatio) {
+        rowItems.pop();
+        rowSum -= items[i].v;
+        break;
+      }
+      bestRatio = ratio;
+      i++;
+    }
+
+    // Place row
+    var rowFrac = rowSum / remTotal;
+    var pos = horizontal ? remaining.x1 : remaining.y1;
+    var rowSize = horizontal ? W * rowFrac : H * rowFrac;
+    var crossSize = horizontal ? H : W;
+    var crossPos = horizontal ? remaining.y1 : remaining.x1;
+
+    rowItems.forEach(function(item){
+      var frac = item.v / rowSum;
+      var size = crossSize * frac;
+      if(horizontal){
+        results.push({n:item.n,v:item.v,color:item.color,x1:remaining.x1+(pos-remaining.x1),y1:crossPos,x2:remaining.x1+(pos-remaining.x1)+rowSize,y2:crossPos+size});
+        crossPos += size;
+      } else {
+        results.push({n:item.n,v:item.v,color:item.color,x1:crossPos,y1:remaining.y1+(pos-remaining.y1),x2:crossPos+size,y2:remaining.y1+(pos-remaining.y1)+rowSize});
+        crossPos += size;
+      }
+    });
+
+    items.splice(0, rowItems.length);
+    remTotal -= rowSum;
+    if(horizontal) remaining.x1 += rowSize;
+    else remaining.y1 += rowSize;
+    if(remaining.x2-remaining.x1 < 2 || remaining.y2-remaining.y1 < 2) break;
+  }
+  return results;
+}
+
+function calcWorstRatio(items, sum, W, H, total, horizontal) {
+  var rowSize = horizontal ? W*(sum/total) : H*(sum/total);
+  var crossSize = horizontal ? H : W;
+  var worst = 0;
+  items.forEach(function(item){
+    var size = crossSize * (item.v/sum);
+    var ratio = Math.max(rowSize/size, size/rowSize);
+    if(ratio > worst) worst = ratio;
+  });
+  return worst;
+}
+
+function tmHover(el, e){
+  el.style.filter = 'brightness(1.25)';
+  var n = el.getAttribute('data-name');
+  var v = parseInt(el.getAttribute('data-val'));
+  showTip(e, n + ': ' + v.toLocaleString('es-CO') + ' casos');
+}
+function tmLeave(el){
+  el.style.filter = '';
+  hideTip();
+}
+function showTip(e, txt){
+  var tip = document.getElementById('tm-tip');
+  if(!tip) return;
+  tip.style.display='block';
+  tip.textContent=txt;
+  var box = document.getElementById('treemap').getBoundingClientRect();
+  tip.style.left=(e.clientX-box.left+8)+'px';
+  tip.style.top=(e.clientY-box.top-24)+'px';
+}
+function hideTip(){
+  var tip = document.getElementById('tm-tip');
+  if(tip) tip.style.display='none';
+}
+
+// Excel cell click highlight
+function xlClick(e){
+  var td = e.target.closest('td');
+  if(!td) return;
+  var tr = td.closest('tr');
+  var table = td.closest('table');
+  table.querySelectorAll('tr.selected').forEach(function(r){r.classList.remove('selected');});
+  tr.classList.add('selected');
+  // update cell ref
+  var toolbar = td.closest('.page-inner').querySelector('.xl-cell-ref');
+  if(toolbar){
+    var cols = ['','A','B','C','D','E','F','G','H','I','J'];
+    var ci = Array.from(tr.cells).indexOf(td);
+    var ri = Array.from(table.querySelectorAll('tbody tr')).indexOf(tr)+1;
+    toolbar.textContent = (cols[ci]||'') + ri;
+  }
+}
+
+// INIT: sincronizar quarters activos con sus meses al cargar
+(function(){
+  document.querySelectorAll('.sfb[data-q].on').forEach(function(btn){
+    var q = btn.getAttribute('data-q');
+    var mesesDelQ = QUARTER_MESES[q];
+    mesesDelQ.forEach(function(m){
+      var mb = document.querySelector('.sfb[data-mes="'+m+'"]');
+      if(mb) mb.classList.add('on');
+    });
+  });
+  // Desactivar meses que no esten en ningun quarter activo
+  // (ene esta 'on' por HTML pero no en Q2/Q3, quitarlo)
+  var qActivos = [];
+  document.querySelectorAll('.sfb[data-q].on').forEach(function(btn){
+    QUARTER_MESES[btn.getAttribute('data-q')].forEach(function(m){ qActivos.push(m); });
+  });
+  if(qActivos.length > 0){
+    meses_all.forEach(function(m){
+      if(qActivos.indexOf(m) === -1){
+        var mb = document.querySelector('.sfb[data-mes="'+m+'"]');
+        if(mb) mb.classList.remove('on');
+      }
+    });
+  }
+  updateDashboard();
+  setTimeout(function(){ renderTreemap(2764); }, 50);
+})();
+
+// MAP
+(function(){
+  var deps=document.querySelectorAll('.dep');
+  var tip=document.getElementById('mtp');
+  var mapEl=document.getElementById('colMap');
+  deps.forEach(function(d){
+    d.style.cursor='pointer';
+    d.addEventListener('mouseenter',function(){tip.style.display='block';tip.textContent=d.getAttribute('data-n')+': '+d.getAttribute('data-v');});
+    d.addEventListener('mousemove',function(e){var r=mapEl.getBoundingClientRect();tip.style.left=(e.clientX-r.left+10)+'px';tip.style.top=(e.clientY-r.top-20)+'px';});
+    d.addEventListener('mouseleave',function(){tip.style.display='none';});
+    d.addEventListener('click',function(){
+      document.querySelectorAll('.dep.sel').forEach(function(x){x.classList.remove('sel');x.style.filter='';x.style.strokeWidth='';});
+      d.classList.add('sel');d.style.filter='brightness(1.3) drop-shadow(0 0 4px rgba(26,58,90,.6))';d.style.strokeWidth='2';
+    });
+  });
+})();
+</script>
+</body>
+</html>
